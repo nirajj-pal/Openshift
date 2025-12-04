@@ -1,0 +1,108 @@
+https://ncrtcocpreg1:8443                               (https://10.200.11.121:8443)	init	L3s8UBZ0hPHvA97mM5W1VaoOKuYC26N4
+
+this online 
+https://esdscorp-my.sharepoint.com/my?id=%2Fpersonal%2Fniraj%5Fpal%5Fesds%5Fco%5Fin%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FRegistry%20sync%20steps%2Etxt&parent=%2Fpersonal%2Fniraj%5Fpal%5Fesds%5Fco%5Fin%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files&ga=1
+
+offical doc we follow to make below steps
+https://docs.redhat.com/en/documentation/openshift_container_platform/4.12/html/post-installation_configuration/connected-to-disconnected#connected-to-disconnected-config-registry_connected-to-disconnected
+
+suvarna doc to make it 
+
+https://sharepoint.esds.co.in/_layouts/15/WopiFrame.aspx?sourcedoc={6fe0378b-d5b4-438e-88f2-59fcc6c1719c}&action=default
+
+Handover Details Sheet : https://sharepoint.esds.co.in/_layouts/15/WopiFrame2.aspx?sourcedoc={0dfe08ff-4c73-42f8-b410-c906ce4cf05a}&action=edit&activeCell=%27Sheet1%27!F17&wdInitialSession=b6a69fa1-08d8-a0ec-15e1-90e9c148a3e5&wdRldC=1
+
+oc get data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=<pull_secret_location>
+
+oc get secret/pull-secret -n openshift-config 
+
+oc get secret -n openshift-config pull-secret -o yaml > pull-secret_org_09-06-25.yaml
+
+oc get secret -n openshift-config pull-secret -o yaml
+
+|base64 -d > orgpullsecret.json
+
+cat local_pullsecret.json
+{
+        "auths": {
+                "ncrtcocpreg1:8443": {
+                        "auth": "aW5pdDpMM3M4VUJaMGhQSHZBOTdtTTVXMVZhb09LdVlDMjZONA=="
+                }
+        }
+}
+
+
+jq -c --argjson var "$(jq .auths ./local_pullsecret.json)" '.auths += $var' ./orgpullsecret.json > merged_pullsecret.json
+
+
+oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=./merged_pullsecret.json
+
+S oc create configmap private-registry-config --from-file=ncrtcocpreg1.ncrtc.co.in..8443=/root/mirrorregistry_conf/ncrtcocpreg1.pem -n openshift-config
+
+oc get image.config.openshift.io/cluster -o yaml > image.config.openshift.io_06-06-25
+
+oc patch image.config.openshift.io/cluster --patch '{"spec":{"additionalTrustedCA":{"name":"private-registry-config"}}}' --type=merge
+
+---
+apiVersion: config.openshift.io/v1
+kind: Image
+metadata:
+  annotations:
+    include.release.openshift.io/ibm-cloud-managed: "true"
+    include.release.openshift.io/self-managed-high-availability: "true"
+    include.release.openshift.io/single-node-developer: "true"
+    release.openshift.io/create-only: "true"
+  creationTimestamp: "2023-10-18T05:11:33Z"
+  generation: 1
+  name: cluster
+  ownerReferences:
+  - apiVersion: config.openshift.io/v1
+    kind: ClusterVersion
+    name: version
+    uid: 519a1da2-03a6-4039-ad95-1461b0af4045
+  resourceVersion: "12302179"
+  uid: 17bbe4c3-b503-4d48-b9f9-88fa313e0a3e
+spec: {}
+status:
+  externalRegistryHostnames:
+  - default-route-openshift-image-registry.apps.intdev01.ncrtc.co.in
+  internalRegistryHostname: image-registry.openshift-image-registry.svc:5000
+
+---
+
+vi registryrepomirror.yaml
+
+apiVersion: operator.openshift.io/v1alpha1
+kind: ImageContentSourcePolicy
+metadata:
+  name: mirror-ocp
+spec:
+  repositoryDigestMirrors:
+  - mirrors:
+    - ncrtcocpreg1.ncrtc.co.in:8443/openshift/release 
+    source: quay.io/openshift-release-dev/ocp-release 
+  - mirrors:
+    - ncrtcocpreg1.ncrtc.co.in:8443/openshift/release
+    source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+	
+oc create -f registryrepomirror.yaml
+
+
+oc debug node/<node_name> or ssh core@worker01.inttest01.ncrtc.co.in
+
+validate 
+cat  /var/lib/kubelet/config.json
+
+cd /etc/docker/certs.d/
+
+ls
+
+validate the registry folder:port
+
+Check that the ICSP added the mirror registry to the registries.conf file:
+
+cat /etc/containers/registries.conf
+
+for node in $(oc get nodes -o jsonpath='{.items[*].metadata.name}'); do echo "### $node ###"; scp core@$node:/var/lib/kubelet/config.json config.json_$node; echo ""; done
+
+for node in $(oc get nodes -o jsonpath='{.items[*].metadata.name}'); do echo "### $node ###"; ssh core@$node "sudo cp /var/lib/kubelet/config.json /tmp/config.json && sudo chown core: /tmp/config.json" ; scp core@$node:/tmp/config.json config.json_$node; echo ""; done

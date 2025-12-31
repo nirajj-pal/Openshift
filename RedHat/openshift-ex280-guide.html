@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OpenShift EX280 Daily Study Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; line-height: 1.4; }
+    h1,h2,h3 { margin: 18px 0 8px; }
+    ul { margin: 6px 0 14px 18px; }
+    .day { margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+    .links a { display:block; margin: 2px 0; }
+  </style>
+</head>
+<body>
+  <h1>OpenShift EX280 Daily Study Guide</h1>
+
+  <h2>Key links</h2>
+  <div class="links">
+    <a href="https://www.redhat.com/en/services/training/ex280-red-hat-certified-openshift-administrator-exam">EX280 exam page + objectives</a>
+    <a href="https://docs.openshift.com/container-platform/latest/">OpenShift docs (latest)</a>
+    <a href="https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html">oc CLI getting started</a>
+    <a href="https://developers.redhat.com/products/openshift-local/overview">OpenShift Local (CRC)</a>
+    <a href="https://developers.redhat.com/developer-sandbox">Developer Sandbox</a>
+    <a href="https://developers.redhat.com/learn/openshift">OpenShift Interactive Labs</a>
+  </div>
+
+  <h2>How to use this (10–20 min/day)</h2>
+  <ul>
+    <li>Do the day’s tasks in a real cluster using <code>oc</code> and YAML.</li>
+    <li>Save manifests you apply. Re-apply later to test persistence.</li>
+    <li>Troubleshoot: <code>oc get events</code> → <code>oc describe</code> → <code>oc logs</code>.</li>
+  </ul>
+
+  <h2>12-day plan (repeatable)</h2>
+
+  <div class="day">
+    <h3>Day 1 — oc basics + projects</h3>
+    <ul>
+      <li>Create and switch projects/namespaces</li>
+      <li>Use <code>oc get/describe/explain</code>, output formats (<code>-o yaml</code>, <code>-o jsonpath</code>)</li>
+      <li>Deploy a simple app (Deployment + Service) from YAML</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html">oc CLI</a>
+      <a href="https://docs.openshift.com/container-platform/latest/applications/projects/working-with-projects.html">Working with projects</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 2 — Deployments, probes, config</h3>
+    <ul>
+      <li>Edit Deployment: replicas, rolling strategy, resources</li>
+      <li>Create ConfigMap + Secret; mount as env and volume</li>
+      <li>Add liveness/readiness probes and verify behavior</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/applications/deployments/what-deployments-are.html">Deployments overview</a>
+      <a href="https://docs.openshift.com/container-platform/latest/nodes/pods/nodes-pods-configmaps.html">ConfigMaps</a>
+      <a href="https://docs.openshift.com/container-platform/latest/nodes/pods/nodes-pods-secrets.html">Secrets</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 3 — Services, Routes, TLS</h3>
+    <ul>
+      <li>Expose app with Service and Route</li>
+      <li>Edge vs reencrypt vs passthrough: know when to use</li>
+      <li>Verify with curl + <code>oc get route</code></li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/networking/routes/route-configuration.html">Routes</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 4 — Storage basics</h3>
+    <ul>
+      <li>Create PVC and attach to pod/deployment</li>
+      <li>Understand RWO/ROX/RWX in practice</li>
+      <li>Troubleshoot Pending PVC (events, StorageClass)</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/storage/understanding-persistent-storage.html">Persistent storage overview</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 5 — Users, groups, RBAC</h3>
+    <ul>
+      <li>Practice configuring an IDP (HTPasswd) in a lab</li>
+      <li>Create Role/RoleBinding for namespace access</li>
+      <li>Verify with <code>oc auth can-i</code></li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/authentication/identity_providers/configuring-identity-providers.html">Identity providers</a>
+      <a href="https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html">RBAC</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 6 — Quotas + LimitRanges</h3>
+    <ul>
+      <li>Set ResourceQuota and LimitRange</li>
+      <li>Test exceeding limits</li>
+      <li>Explain requests vs limits</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/applications/quotas/quotas-setting-per-project.html">Quotas per project</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 7 — NetworkPolicies</h3>
+    <ul>
+      <li>Default deny, then allow from a specific app/namespace</li>
+      <li>Prove blocked/allowed traffic with test pods</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/networking/network_policy/about-network-policy.html">Network policy</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 8 — ServiceAccounts + SCC</h3>
+    <ul>
+      <li>Create ServiceAccount and bind to workload</li>
+      <li>Understand restricted default and common failures</li>
+      <li>Troubleshoot via events + describe</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/authentication/understanding-and-creating-service-accounts.html">Service accounts</a>
+      <a href="https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html">SCCs</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 9 — Jobs + CronJobs</h3>
+    <ul>
+      <li>Create Job and CronJob from YAML</li>
+      <li>Inspect status, retries, logs, completion</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/nodes/jobs/nodes-nodes-jobs.html">Jobs/CronJobs</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 10 — Operators</h3>
+    <ul>
+      <li>Install operator (OperatorHub)</li>
+      <li>Create a Custom Resource and verify operands</li>
+      <li>Uninstall cleanly</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/operators/understanding/olm-what-operators-are.html">Operators overview</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 11 — Troubleshooting drill</h3>
+    <ul>
+      <li>Break something (bad image, wrong port, missing secret)</li>
+      <li>Fix: events → describe → logs</li>
+      <li>Write down your exact commands</li>
+    </ul>
+    <div class="links">
+      <a href="https://docs.openshift.com/container-platform/latest/support/troubleshooting/troubleshooting-applications.html">Troubleshooting apps</a>
+    </div>
+  </div>
+
+  <div class="day">
+    <h3>Day 12 — Mock exam day</h3>
+    <ul>
+      <li>2 hours: deploy app, route, RBAC, quota, netpol, job, fix one broken deploy</li>
+      <li>Create a personal speed cheatsheet</li>
+    </ul>
+    <div class="links">
+      <a href="https://www.redhat.com/en/services/training/ex280-red-hat-certified-openshift-administrator-exam">EX280 page</a>
+    </div>
+  </div>
+
+</body>
+</html>
